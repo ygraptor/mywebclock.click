@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        #clock {
+            color: white;
+            font-size: 120px;
+            text-align: center;
+        }
+        #controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: scale(1);
+            transform-origin: top right;
+            z-index: 1000;
+        }
+        #controls.collapsed {
+            transform: scale(1);
+            opacity: 0.3;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            background: rgba(128, 128, 128, 0.5);
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        #controls:hover {
+            transform: scale(1);
+            opacity: 1;
+            width: auto;
+            height: auto;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        button {
+            background: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        input[type="color"] {
+            margin: 5px;
+        }
+        input[type="number"] {
+            width: 60px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+    <div id="controls">
+        <button onclick="toggleFormat()">12/24 Hour</button>
+        <button onclick="toggleFullscreen()">Fullscreen</button>
+        <br>
+        Color: <input type="color" value="#ffffff" onchange="changeColor(this.value)">
+        <br>
+        Size: <input type="number" value="120" min="20" max="500" onchange="changeSize(this.value)">px
+    </div>
+
+    <script>
+        let is24Hour = true;
+        
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            let ampm = '';
+
+            if (!is24Hour) {
+                ampm = hours >= 12 ? ' PM' : ' AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+            }
+
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}${ampm}`;
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        function toggleFormat() {
+            is24Hour = !is24Hour;
+            updateClock();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function changeColor(color) {
+            document.getElementById('clock').style.color = color;
+        }
+
+        function changeSize(size) {
+            document.getElementById('clock').style.fontSize = size + 'px';
+        }
+
+        let controlsTimeout;
+        const controls = document.getElementById('controls');
+
+        controls.addEventListener('mouseenter', () => {
+            clearTimeout(controlsTimeout);
+            controls.classList.remove('collapsed');
+        });
+
+        controls.addEventListener('mouseleave', () => {
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                controls.classList.add('collapsed');
+            }, 3000);
+        });
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
